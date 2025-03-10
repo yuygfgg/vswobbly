@@ -5,10 +5,13 @@ This module provides functionality to directly load and process Wobbly projects
 in VapourSynth scripts without needing to export .vpy files.
 """
 
-import json
 import os
 from pathlib import Path
 from typing import Dict, List, Tuple, Set, Any, Optional, Union, Callable, TypedDict
+try:
+    import orjson
+except Exception:
+    import json
 
 import vapoursynth as vs
 from vapoursynth import core
@@ -137,7 +140,10 @@ def wobbly_source(
     # Read and parse the Wobbly project file
     try:
         with open(wob_project_path, 'r', encoding='utf-8') as f:
-            project = json.load(f)
+            try:
+                project = orjson.loads(f.read())
+            except Exception:
+                project = json.load(f)
     except Exception as e:
         raise ValueError(f"Failed to read or parse Wobbly project file: {e}")
 
